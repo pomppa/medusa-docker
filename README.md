@@ -1,5 +1,5 @@
-# local development environment with medusa
-this repository contains code for setting up a local development environment for [medusajs/medusa](https://github.com/medusajs/medusa).
+# local medusa with docker
+this repository contains code for starting _sort-of-a_ development environment for [medusajs/medusa](https://github.com/medusajs/medusa).
 
 ## requirements
 * `docker`
@@ -46,8 +46,6 @@ alternatively you can edit `docker-compose.yml`
 command:
     medusa seed -f 'backend/data/seed.json'
 ```
-
-
 
 ## more
 * to create a new admin with email and password: `docker exec medusa-server medusa user --email -p `
