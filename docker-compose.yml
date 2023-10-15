@@ -34,15 +34,11 @@ services:
     expose:
       - 6379
 
-
-  admin:
+  storefront:
     build:
-      context: ./admin
+      context: ./storefront
       dockerfile: Dockerfile
-    image: admin:test
+    image: storefront:test
+    container_name: medusa-storefront
     depends_on:
       - backend
-    container_name: medusa-admin
-    environment:
-      NODE_OPTIONS: --openssl-legacy-provider
-
