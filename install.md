@@ -1,18 +1,56 @@
-## cli commands
+# local development environment with medusa
+this repository contains code for setting up a local development environment for [medusajs/medusa](https://github.com/medusajs/medusa).
 
-create admin user
-`docker exec medusa-server medusa user --email "admin@test.com" --password "root"`
+## requirements
+* `docker`
+* `docker compose`
 
-
-
-
-
-`$ bunx @medusajs/medusa-cli new`
-
+### install postgres
+```
 $ docker pull postgres
-$ docker run -d --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres
-$ docker start postgres
+$ docker run -d --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres
+$ docker start postgres
+```
 
-* postgres postgres, 5432:5432
+* your local postgres: -u postgres -p postgres, 5432:5432
+* database created later will be called: `medusa-docker`
 
-cd backend && medusa start
+## install medusa backend and storefront
+clone this repository: `git clone git@github.com:pomppa/medusa.git`
+
+to build and run
+```
+$ docker compose up --build
+```
+* `--force-recreate` to recreate networks
+* `-d` ?
+
+to run
+```
+$ docker compose up
+```
+
+
+## cli commands
+connect to postgres
+ * `docker run -it --rm --network medusa_default postgres psql -h postgres -U postgres medusa-docker`
+
+## migrate database
+it's important you migrate or seed the database before starting backend
+```
+$ docker exec medusa-server medusa seed --seed-file=backend/data/seed.json
+```
+
+alternatively you can edit `docker-compose.yml`
+```
+command:
+    medusa seed -f 'backend/data/seed.json'
+```
+
+
+
+## more
+* to create a new admin with email and password: `docker exec medusa-server medusa user --email -p `
+
+* create a customer
+http://localhost:8000/account/login
