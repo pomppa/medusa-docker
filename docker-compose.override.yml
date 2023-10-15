@@ -4,8 +4,8 @@ services:
     environment:
       NODE_ENV: development
     volumes:
-      - ./backend:/app/medusa-backend
-      - backend_node_modules:/app/medusa-backend/node_modules
+      - ./backend:/app/backend
+      - backend_node_modules:/app/backend/node_modules
     ports:
       - "9000:9000"
 

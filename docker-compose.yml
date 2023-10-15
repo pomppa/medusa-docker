@@ -2,7 +2,7 @@ version: "3.8"
 services:
   backend:
     build:
-      context: ./medusa-backend
+      context: ./backend
       dockerfile: Dockerfile
     image: backend:test
     container_name: medusa-server
@@ -17,7 +17,7 @@ services:
       COOKIE_SECRET: some_cookie_secret
       PORT: 9000
     command:
-      medusa develop
+       medusa start
 
   postgres:
     image: postgres:10.4
