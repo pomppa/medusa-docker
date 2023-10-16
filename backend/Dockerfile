@@ -10,6 +10,10 @@ COPY tsconfig.json .
 
 COPY tsconfig.spec.json .
 
+COPY data/seed.json .
+
+COPY data/seed-onboarding.json .
+
 RUN apt-get update
 
 RUN apt-get install -y python-is-python3

@@ -1,4 +1,4 @@
-# local medusa with docker
+# medusa with docker
 this repository contains code for starting _sort-of-a_ development environment for [medusajs/medusa](https://github.com/medusajs/medusa).
 
 ## requirements
@@ -38,7 +38,8 @@ connect to postgres
 ## migrate database
 it's important you migrate or seed the database before starting backend
 ```
-$ docker exec medusa-server medusa seed --seed-file=backend/data/seed.json
+$ docker exec medusa-server medusa seed --seed-file=/app/backend/data/seed.json
+$ docker exec medusa-server medusa seed --seed-file=/app/backend/data/seed-onboarding.json
 ```
 
 alternatively you can edit `docker-compose.yml`
