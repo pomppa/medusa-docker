@@ -14,6 +14,8 @@ COPY data/seed.json .
 
 COPY data/seed-onboarding.json .
 
+COPY develop.sh .
+
 RUN apt-get update
 
 RUN apt-get install -y python-is-python3
@@ -26,3 +28,4 @@ RUN npm install --loglevel=error
 
 COPY . .
 
+ENTRYPOINT ["./develop.sh", "develop"]
