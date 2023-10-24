@@ -8,6 +8,7 @@ services:
       - backend_node_modules:/app/backend/node_modules
     ports:
       - "9000:9000"
+      - "7001:7001"
 
   storefront:
     volumes:
