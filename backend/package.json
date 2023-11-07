@@ -4,14 +4,6 @@
   "description": "A starter for Medusa projects.",
   "author": "Sebastian Rindom <skrindom@gmail.com>",
   "license": "MIT",
-  "keywords": [
-    "sqlite",
-    "postgres",
-    "typescript",
-    "ecommerce",
-    "headless",
-    "medusa"
-  ],
   "scripts": {
     "clean": "cross-env ./node_modules/.bin/rimraf dist",
     "build": "cross-env npm run clean && npm run build:server && npm run build:admin",
@@ -33,6 +25,7 @@
     "@medusajs/file-local": "^1.0.2",
     "@medusajs/icons": "^1.0.0",
     "@medusajs/medusa": "^1.17.3",
+    "@medusajs/pricing": "^0.1.2",
     "@tanstack/react-query": "4.22.0",
     "babel-preset-medusa-package": "^1.1.13",
     "body-parser": "^1.19.0",
