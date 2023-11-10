@@ -3,9 +3,6 @@ FROM node:20.8.0
 WORKDIR /app/backend
 
 COPY package.json .
-COPY tsconfig.server.json .
-COPY tsconfig.json .
-COPY tsconfig.spec.json .
 COPY data/seed.json .
 COPY data/seed-onboarding.json .
 COPY develop.sh .

@@ -50,20 +50,38 @@ $ docker exec medusa-server npx medusa migrations run
 to drop `medusa-docker` connect to postgres and terminate active connections and drop table immediately after
 
 ```
+postgres=# # use following query to terminate connections
+
 SELECT pg_terminate_backend (pid)
 FROM pg_stat_activity
 WHERE datname = 'medusa-docker';
+ pg_terminate_backend
 
-DROP DATABASE "medusa-docker";
+
+postgres=# DROP DATABASE "medusa-docker";
+DROP DATABASE
 ```
 
 then create it.
 
 ### seed
 
+product module first, then backend
+
 ```
 $ docker exec medusa-storefront npm run product:seed
+$ docker exec medusa-server medusa seed --seed-file=/app/backend/data/seed.json
 ```
+
+### product api
+
+test the product api from backend
+
+```
+$ curl -X GET localhost:9000/store/products | python -m json.tool
+```
+
+product module provides an api in storefront `localhost:7000/api/product`
 
 ## more
 

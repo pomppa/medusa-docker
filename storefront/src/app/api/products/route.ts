@@ -49,7 +49,15 @@ async function getProducts(params: Record<string, any>) {
     context: { currency_code },
   }
 
-  // Set the GraphQL query
+  /**
+   * Set the GraphQL query without prices
+   *
+   * price {
+   *   price_set {
+   *     id
+   *  }
+   * }
+   */
   const productsQuery = `#graphql
     query($filters: Record, $id: String, $take: Int, $skip: Int) {
       products(filters: $filters, id: $id, take: $take, skip: $skip) {
@@ -88,11 +96,6 @@ async function getProducts(params: Record<string, any>) {
             value
             title
           }
-          price {
-            price_set {
-              id
-            }
-          }
         }
       }
     }`
@@ -101,20 +104,19 @@ async function getProducts(params: Record<string, any>) {
     rows: products,
     metadata: { count },
   } = await query(productsQuery, filters)
-
   // Calculate prices
-  const productsWithPrices = await getPricesByPriceSetId({
+  /*const productsWithPrices = await getPricesByPriceSetId({
     products,
     currency_code,
     pricingService: modules.pricingService as unknown as IPricingModuleService,
   })
-
+*/
   // Calculate the next page
   const nextPage = offset + limit
 
   // Return the response
   return {
-    products: productsWithPrices,
+    products: products,
     count: count,
     nextPage: count > nextPage ? nextPage : null,
   }
