@@ -19,6 +19,7 @@ const productCategoriesData = [
     name: "category 1 b",
     parent_category_id: "category-1",
     is_internal: true,
+    rank: 2,
   },
   {
     id: "category-1-b-1",
@@ -32,7 +33,8 @@ const productsData = [
     id: "test-1",
     title: "product 1",
     status: "published",
-    descriptions: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed",
+    descriptions:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed",
     tags: [
       {
         id: "tag-1",
@@ -49,7 +51,8 @@ const productsData = [
     id: "test-2",
     title: "product",
     status: "published",
-    descriptions: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed",
+    descriptions:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed",
     tags: [
       {
         id: "tag-2",
