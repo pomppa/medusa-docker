@@ -13,6 +13,7 @@ RUN apt-get install -y python-is-python3
 #npm
 RUN npm install -g npm@latest
 RUN npm install -g @medusajs/medusa-cli@latest
+RUN rm /usr/local/bin/npx
 RUN npm install -g npx
 
 # project

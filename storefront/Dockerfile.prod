@@ -1,0 +1,26 @@
+#Dependencies
+FROM node:18-alpine3.16 as deps
+
+WORKDIR /app/storefront
+#   Copy storefront package.json and yarn.lock from /storefront
+COPY ./package.json .
+COPY ./yarn.lock .
+
+#   Install deps and launch patch-package
+RUN yarn install --frozen-lockfile
+
+#Build
+FROM node:18-alpine3.16 as builder
+
+WORKDIR /app/storefront
+
+#   Copy cached root and package node_modules from deps
+COPY --from=deps /app/storefront/node_modules /app/storefront/node_modules
+
+#   Copy app source code and monorepo root package.json
+COPY . .
+#   Build the app
+
+RUN yarn build
+#   Run the built app
+ENTRYPOINT [ "yarn", "start" ]

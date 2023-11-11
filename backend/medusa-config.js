@@ -1,5 +1,9 @@
 const REDIS_URL = process.env.REDIS_URL || "redis://cache";
 
+/**
+ * for admin configurations
+ *  @see https://docs.medusajs.com/admin/configuration#build-command-options
+ */
 const plugins = [
   `medusa-fulfillment-manual`,
   `medusa-payment-manual`,
