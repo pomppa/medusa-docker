@@ -36,6 +36,8 @@ services:
     restart: always
     environment:
       NODE_ENV: production
+      POSTGRES_URL: postgres://postgres:postgres@postgres:5432/medusa-docker
+      POSTGRES_DRIVER_OPTIONS: '{"connection":{"ssl":false}}'
     depends_on:
       - backend
     ports:
