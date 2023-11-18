@@ -39,6 +39,8 @@ async function getProducts(params: Record<string, any>) {
     sharedResourcesConfig: {
       database: { clientUrl: process.env.POSTGRES_URL },
     },
+    // for some reason required for this route on production mode
+    injectedDependencies: {},
   })
 
   // Set the filters for the query
@@ -106,9 +108,9 @@ async function getProducts(params: Record<string, any>) {
   } = await query(productsQuery, filters)
   // Calculate prices
   /*const productsWithPrices = await getPricesByPriceSetId({
-    products,
-    currency_code,
-    pricingService: modules.pricingService as unknown as IPricingModuleService,
+  products,
+  currency_code,
+  pricingService: modules.pricingService as unknown as IPricingModuleService,
   })
 */
   // Calculate the next page
