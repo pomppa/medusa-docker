@@ -29,7 +29,7 @@ $ docker-compose up
 
 ### development mode
 
-by default following ports are assigned (locahost):
+following ports are assigned (locahost):
 
 - storefront: 8000
 - backend: 9000
@@ -57,7 +57,7 @@ $ docker exec medusa-server npx medusa migrations run
 
 ### helpfulp commands
 
-to drop `medusa-docker` connect to postgres and terminate active connections and drop table immediately after
+to drop `medusa-docker` connect to postgres and terminate active connections, then drop table immediately after
 
 ```
 SELECT pg_terminate_backend (pid)
@@ -73,7 +73,7 @@ CREATE DATABASE "medusa-docker";
 
 ### seed
 
-you can seed the database with test data, there are two seeds: backend & product module
+you can seed the database with test data using two seeds: backend & product module
 
 ```
 $ docker exec medusa-server medusa seed --seed-file=/app/backend/data/seed.json
@@ -107,7 +107,7 @@ build production images from both docker-compose files
 $ docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build
 ```
 
-add environment variables in storefront `.env`:
+add environment variables in storefront `.env`
 
 ```
 NEXT_PUBLIC_BASE_URL=http://localhost:80
@@ -116,6 +116,10 @@ POSTGRES_URL='postgres://postgres:postgres@postgres:5432/medusa-docker'
 
 ### production mode
 
-- storefront: `localhost:80`
-- backend: `localhost:9000`
-- admin panel: `localhost:9000/app/`
+following ports are assigned (localhost)
+
+- storefront: 80
+- backend: 9000
+- admin panel: 9000 (in path `/app`)
+- postgres: 5432
+- redis: 6379 (redis://cache)
