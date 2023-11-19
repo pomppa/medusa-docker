@@ -18,13 +18,13 @@ $ git clone git@github.com:pomppa/medusa.git
 if you run it for the first time, you need to build the images
 
 ```
-$ docker compose up --build
+$ docker-compose up --build
 ```
 
 after building the images you can run with
 
 ```
-$ docker compose up
+$ docker-compose up
 ```
 
 ### development mode
@@ -105,6 +105,13 @@ build production images from both docker-compose files
 
 ```
 $ docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build
+```
+
+add environment variables in storefront `.env`:
+
+```
+NEXT_PUBLIC_BASE_URL=http://localhost:80
+POSTGRES_URL='postgres://postgres:postgres@postgres:5432/medusa-docker'
 ```
 
 ### production mode
