@@ -1,26 +1,25 @@
-#Dependencies
-FROM node:18-alpine3.16 as deps
-
+FROM node:20.8.0-alpine as deps
 WORKDIR /app/storefront
-#   Copy storefront package.json and yarn.lock from /storefront
-COPY ./package.json .
-COPY ./yarn.lock .
 
-#   Install deps and launch patch-package
+# copy required files
+COPY package.json .
+COPY yarn.lock .
+
+# install deps
 RUN yarn install --frozen-lockfile
 
-#Build
-FROM node:18-alpine3.16 as builder
-
+# build stage
+FROM node:20.8.0-alpine as builder
 WORKDIR /app/storefront
 
-#   Copy cached root and package node_modules from deps
+# copy node_modules from deps
 COPY --from=deps /app/storefront/node_modules /app/storefront/node_modules
 
-#   Copy app source code and monorepo root package.json
+# copy project files to current workdir
 COPY . .
-#   Build the app
 
+# run build
 RUN yarn build
-#   Run the built app
+
+# run storefront in production mode
 ENTRYPOINT [ "yarn", "start" ]
