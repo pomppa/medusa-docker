@@ -1,11 +1,11 @@
 # medusa with docker
 
-this repository contains code for starting _sort-of-a_ development environment for [medusajs/medusa](https://github.com/medusajs/medusa).
+this repository contains a starter docker template for [medusajs/medusa](https://github.com/medusajs/medusa). it has built-in support for serverless [product module](https://docs.medusajs.com/modules/products/serverless-module) & next.js starter [storefront](https://docs.medusajs.com/starters/nextjs-medusa-starter).
 
 ## requirements
 
 - `docker`
-- `docker compose`
+- `docker-compose`
 
 ## install medusa backend and storefront
 
@@ -15,19 +15,29 @@ clone this repository
 $ git clone git@github.com:pomppa/medusa.git
 ```
 
-to build and run
+if you run it for the first time, you need to build the images
 
 ```
 $ docker compose up --build
 ```
 
-to run
+after building the images you can run with
 
 ```
 $ docker compose up
 ```
 
-## cli commands
+### development mode
+
+by default following ports are assigned (locahost):
+
+- storefront: 8000
+- backend: 9000
+- admin: 7001
+- postgres: 5432
+- redis: 6379 (redis://cache)
+
+### cli commands
 
 connect to postgres
 
@@ -35,9 +45,9 @@ connect to postgres
 $ docker exec -it medusa-postgres-1  psql -h postgres -U postgres
 ```
 
-database is `medusa-docker`, supply it for connecting to it.
+database is `medusa-docker`, append to above command for connecting to it.
 
-## run migrations
+### run migrations
 
 database will be migrated first time you build the images but you can run migrations manually
 
@@ -50,27 +60,33 @@ $ docker exec medusa-server npx medusa migrations run
 to drop `medusa-docker` connect to postgres and terminate active connections and drop table immediately after
 
 ```
-postgres=# # use following query to terminate connections
-
 SELECT pg_terminate_backend (pid)
 FROM pg_stat_activity
 WHERE datname = 'medusa-docker';
- pg_terminate_backend
 
+# to drop
+DROP DATABASE "medusa-docker";
 
-postgres=# DROP DATABASE "medusa-docker";
-DROP DATABASE
+# to create
+CREATE DATABASE "medusa-docker";
 ```
-
-then create it.
 
 ### seed
 
-product module first, then backend
+you can seed the database with test data, there are two seeds: backend & product module
 
 ```
-$ docker exec medusa-storefront npm run product:seed
 $ docker exec medusa-server medusa seed --seed-file=/app/backend/data/seed.json
+
+$ docker exec medusa-storefront npm run product:seed
+```
+
+backend seed creates an admin user: `admin@medusa-test.com` / `supersecret`
+
+optionally you can create a new one with
+
+```
+$ docker exec medusa-server medusa user --email email@example.com -p supersecret
 ```
 
 ### product api
@@ -81,14 +97,18 @@ test the product api from backend
 $ curl -X GET localhost:9000/store/products | python -m json.tool
 ```
 
-product module provides an api in storefront `localhost:7000/api/product`
+product module provides an api in storefront `localhost:8000/api/product`
 
-## more
+## running in production mode
 
-- new admin: `docker exec medusa-server medusa user --email -p `
-
-- fe to create a customer
+build production images from both docker-compose files
 
 ```
-
+$ docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build
 ```
+
+### production mode
+
+- storefront: `localhost:80`
+- backend: `localhost:9000`
+- admin panel: `localhost:9000/app/`
