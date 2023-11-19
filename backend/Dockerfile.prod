@@ -1,28 +1,30 @@
-FROM node:18-alpine3.16 as deps
+FROM node:20.8.0-alpine as deps
 WORKDIR /app/backend
 
-#   Copy backend package package.json and yarn.lock
-COPY ./package.json .
-COPY ./yarn.lock .
+# copy required files
+COPY package.json .
+COPY yarn.lock .
 
-#   Install deps
+# install deps 
 RUN yarn install --frozen-lockfile
 
-#BUILD
+# build stage
 FROM node:18-alpine3.16 as builder
 WORKDIR /app/backend
+
+# copy node_modules from deps
 COPY --from=deps /app/backend/node_modules /app/backend/node_modules
 
-#   Install python and medusa-cli
+# install python and medusa-cli
 RUN apk update
 RUN apk add python3
 RUN yarn global add @medusajs/medusa-cli@latest
 
-#   Copy app source code
+# copy project files to current workdir
 COPY . .
 
-#  Build the app
+# run build
 RUN yarn build
 
-# Run medusa start
+# run medusa start
 ENTRYPOINT ["/bin/sh", "./develop.sh", "start"]
