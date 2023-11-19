@@ -1,24 +1,32 @@
-FROM node:20.8.0
-
+FROM node:20.8.0-alpine as deps
 WORKDIR /app/backend
 
+# copy required files
 COPY package.json .
-COPY data/seed.json .
-COPY data/seed-onboarding.json .
+COPY yarn.lock .
 COPY develop.sh .
 
-RUN apt-get update
-RUN apt-get install -y python-is-python3
+# copy optional seed files
+COPY data/seed.json .
+COPY data/seed-onboarding.json .
 
-#npm
-RUN npm install -g npm@latest
-RUN npm install -g @medusajs/medusa-cli@latest
-RUN rm /usr/local/bin/npx
-RUN npm install -g npx
+# install deps 
+RUN yarn install --frozen-lockfile
 
-# project
-RUN npm install --loglevel=error
+# intermediate build stage
+FROM node:20.8.0-alpine as builder
+WORKDIR /app/backend
 
+# copy from deps 
+COPY --from=deps /app/backend/node_modules /app/backend/node_modules
+
+# install python, medusa-cli and npx
+RUN apk update
+RUN apk add python3
+RUN yarn global add @medusajs/medusa-cli@latest
+RUN yarn global add npx
+
+# copy project files to current workdir
 COPY . .
 
-ENTRYPOINT ["./develop.sh", "develop"]
+ENTRYPOINT ["/bin/sh", "./develop.sh", "develop"]
