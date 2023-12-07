@@ -39,7 +39,6 @@ async function getProducts(params: Record<string, any>) {
     sharedResourcesConfig: {
       database: { clientUrl: process.env.POSTGRES_URL },
     },
-    // for some reason required for this route on production mode
     injectedDependencies: {},
   })
 
@@ -51,15 +50,7 @@ async function getProducts(params: Record<string, any>) {
     context: { currency_code },
   }
 
-  /**
-   * Set the GraphQL query without prices
-   *
-   * price {
-   *   price_set {
-   *     id
-   *  }
-   * }
-   */
+  // Set the GraphQL query
   const productsQuery = `#graphql
     query($filters: Record, $id: String, $take: Int, $skip: Int) {
       products(filters: $filters, id: $id, take: $take, skip: $skip) {
@@ -98,6 +89,9 @@ async function getProducts(params: Record<string, any>) {
             value
             title
           }
+          prices {
+            id
+          }
         }
       }
     }`
@@ -106,19 +100,20 @@ async function getProducts(params: Record<string, any>) {
     rows: products,
     metadata: { count },
   } = await query(productsQuery, filters)
+
   // Calculate prices
-  /*const productsWithPrices = await getPricesByPriceSetId({
-  products,
-  currency_code,
-  pricingService: modules.pricingService as unknown as IPricingModuleService,
+  const productsWithPrices = await getPricesByPriceSetId({
+    products,
+    currency_code,
+    pricingService: modules.pricingService as unknown as IPricingModuleService,
   })
-*/
+
   // Calculate the next page
   const nextPage = offset + limit
 
   // Return the response
   return {
-    products: products,
+    products: productsWithPrices,
     count: count,
     nextPage: count > nextPage ? nextPage : null,
   }
