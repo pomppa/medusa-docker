@@ -25,6 +25,10 @@ const plugins = [
   },
 ];
 
+const featureFlags = {
+  medusa_v2: true,
+};
+
 const modules = {
   eventBus: {
     resolve: "@medusajs/event-bus-redis",
@@ -37,6 +41,9 @@ const modules = {
     options: {
       redisUrl: REDIS_URL,
     },
+  },
+  pricingService: {
+    resolve: "@medusajs/pricing",
   },
 };
 
@@ -56,4 +63,5 @@ module.exports = {
   projectConfig,
   plugins,
   modules,
+  featureFlags,
 };
