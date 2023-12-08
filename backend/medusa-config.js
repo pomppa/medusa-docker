@@ -45,17 +45,26 @@ const modules = {
   pricingService: {
     resolve: "@medusajs/pricing",
   },
+  productService: {
+    resolve: "@medusajs/product",
+  },
 };
 
 /** @type {import('@medusajs/medusa').ConfigModule["projectConfig"]} */
 const projectConfig = {
   jwtSecret: process.env.JWT_SECRET,
   cookieSecret: process.env.COOKIE_SECRET,
-  database_url: process.env.DATABASE_URL,
   store_cors: process.env.STORE_CORS || "http://localhost:8000",
   admin_cors:
     process.env.ADMIN_CORS || "http://localhost:7000,http://localhost:7001",
   redis_url: REDIS_URL,
+  database_database: "medusa-docker",
+  database_type: "postgres",
+  database_extra:
+    process.env.NODE_ENV !== "development"
+      ? { ssl: { rejectUnauthorized: false } }
+      : { ssl: false }, // important for docker, postgres is not considered local
+  database_url: process.env.POSTGRES_URL || process.env.DATABASE_URL,
 };
 
 /** @type {import('@medusajs/medusa').ConfigModule} */

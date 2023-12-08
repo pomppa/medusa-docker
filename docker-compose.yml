@@ -11,6 +11,8 @@ services:
       - redis
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/medusa-docker
+      POSTGRES_URL: postgres://postgres:postgres@postgres:5432/medusa-docker
+      POSTGRES_DRIVER_OPTIONS: '{"connection":{"ssl":false}}'
       NODE_ENV: development
       REDIS_URL: redis://cache
       JWT_SECRET: some_jwt_secret
@@ -25,6 +27,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: medusa-docker
+      PGSSLMODE: disable
+    command: ["postgres", "-c", "ssl=off"] # supply a certificate to enable
 
   redis:
     image: redis
