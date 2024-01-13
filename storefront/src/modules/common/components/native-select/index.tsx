@@ -1,15 +1,13 @@
-import { ErrorMessage } from "@hookform/error-message"
-import ChevronDown from "@modules/common/icons/chevron-down"
-import clsx from "clsx"
+import { ChevronUpDown } from "@medusajs/icons"
+import { clx } from "@medusajs/ui"
 import {
-  forwardRef,
   SelectHTMLAttributes,
+  forwardRef,
   useEffect,
   useImperativeHandle,
   useRef,
   useState,
 } from "react"
-import { get } from "react-hook-form"
 
 export type NativeSelectProps = {
   placeholder?: string
@@ -19,14 +17,7 @@ export type NativeSelectProps = {
 
 const NativeSelect = forwardRef<HTMLSelectElement, NativeSelectProps>(
   (
-    {
-      placeholder = "Select...",
-      errors,
-      touched,
-      className,
-      children,
-      ...props
-    },
+    { placeholder = "Select...", defaultValue, className, children, ...props },
     ref
   ) => {
     const innerRef = useRef<HTMLSelectElement>(null)
@@ -36,10 +27,6 @@ const NativeSelect = forwardRef<HTMLSelectElement, NativeSelectProps>(
       ref,
       () => innerRef.current
     )
-
-    const hasError = props.name
-      ? get(errors, props.name) && get(touched, props.name)
-      : false
 
     useEffect(() => {
       if (innerRef.current && innerRef.current.value === "") {
@@ -54,39 +41,29 @@ const NativeSelect = forwardRef<HTMLSelectElement, NativeSelectProps>(
         <div
           onFocus={() => innerRef.current?.focus()}
           onBlur={() => innerRef.current?.blur()}
-          className={clsx(
-            "relative flex items-center text-base-regular border border-gray-200",
+          className={clx(
+            "relative flex items-center text-base-regular border border-ui-border-base bg-ui-bg-subtle rounded-md hover:bg-ui-bg-field-hover",
             className,
             {
-              "text-gray-500": isPlaceholder,
+              "text-ui-fg-muted": isPlaceholder,
             }
           )}
         >
           <select
             ref={innerRef}
+            defaultValue={defaultValue}
             {...props}
-            className="appearance-none flex-1 bg-transparent border-none px-4 py-2.5 transition-colors duration-150 focus:border-gray-700 outline-none"
+            className="appearance-none flex-1 bg-transparent border-none px-4 py-2.5 transition-colors duration-150 outline-none "
           >
-            <option value="">{placeholder}</option>
+            <option disabled value="">
+              {placeholder}
+            </option>
             {children}
           </select>
-          <span className="absolute right-4 inset-y-0 flex items-center pointer-events-none">
-            <ChevronDown />
+          <span className="absolute right-4 inset-y-0 flex items-center pointer-events-none ">
+            <ChevronUpDown />
           </span>
         </div>
-        {hasError && props.name && (
-          <ErrorMessage
-            errors={errors}
-            name={props.name}
-            render={({ message }) => {
-              return (
-                <div className="pt-1 pl-2 text-rose-500 text-xsmall-regular">
-                  <span>{message}</span>
-                </div>
-              )
-            }}
-          />
-        )}
       </div>
     )
   }

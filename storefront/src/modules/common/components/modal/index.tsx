@@ -1,21 +1,25 @@
 import { Dialog, Transition } from "@headlessui/react"
+import { clx } from "@medusajs/ui"
+import React, { Fragment } from "react"
+
 import { ModalProvider, useModal } from "@lib/context/modal-context"
 import X from "@modules/common/icons/x"
-import clsx from "clsx"
-import React, { Fragment } from "react"
 
 type ModalProps = {
   isOpen: boolean
   close: () => void
   size?: "small" | "medium" | "large"
+  search?: boolean
+  children: React.ReactNode
 }
 
-const Modal: React.FC<ModalProps> & {
-  Title: React.FC
-  Description: React.FC
-  Body: React.FC
-  Footer: React.FC
-} = ({ isOpen, close, size = "medium", children }) => {
+const Modal = ({
+  isOpen,
+  close,
+  size = "medium",
+  search = false,
+  children,
+}: ModalProps) => {
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-[75]" onClose={close}>
@@ -28,11 +32,19 @@ const Modal: React.FC<ModalProps> & {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gray-700 bg-opacity-75 backdrop-blur-sm" />
+          <div className="fixed inset-0 bg-opacity-75 backdrop-blur-md  h-screen" />
         </Transition.Child>
 
-        <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full h-full items-center justify-center p-4 text-center">
+        <div className="fixed inset-0 overflow-y-hidden">
+          <div
+            className={clx(
+              "flex min-h-full h-full justify-center p-4 text-center",
+              {
+                "items-center": !search,
+                "items-start": search,
+              }
+            )}
+          >
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -43,12 +55,14 @@ const Modal: React.FC<ModalProps> & {
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel
-                className={clsx(
-                  "flex flex-col justify-start w-full h-full transform overflow-auto bg-white p-10 text-left align-middle shadow-xl transition-all max-h-[65vh]",
+                className={clx(
+                  "flex flex-col justify-start w-full transform p-5 text-left align-middle transition-all max-h-[75vh] h-fit",
                   {
                     "max-w-md": size === "small",
                     "max-w-xl": size === "medium",
                     "max-w-3xl": size === "large",
+                    "bg-transparent shadow-none": search,
+                    "bg-white shadow-xl border rounded-rounded": !search,
                   }
                 )}
               >
@@ -62,7 +76,7 @@ const Modal: React.FC<ModalProps> & {
   )
 }
 
-const Title: React.FC = ({ children }) => {
+const Title: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { close } = useModal()
 
   return (
@@ -77,19 +91,19 @@ const Title: React.FC = ({ children }) => {
   )
 }
 
-const Description: React.FC = ({ children }) => {
+const Description: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <Dialog.Description className="flex text-small-regular text-gray-700 items-center justify-center pt-2 pb-4 h-full">
+    <Dialog.Description className="flex text-small-regular text-ui-fg-base items-center justify-center pt-2 pb-4 h-full">
       {children}
     </Dialog.Description>
   )
 }
 
-const Body: React.FC = ({ children }) => {
-  return <div className="flex-1">{children}</div>
+const Body: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return <div className="flex justify-center">{children}</div>
 }
 
-const Footer: React.FC = ({ children }) => {
+const Footer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <div className="flex items-center justify-end gap-x-4">{children}</div>
 }
 

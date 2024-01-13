@@ -1,12 +1,13 @@
-import X from "@modules/common/icons/x"
+import { XMarkMini } from "@medusajs/icons"
 import { FormEvent } from "react"
+import { useRouter } from "next/navigation"
+
 import SearchBoxWrapper, {
   ControlledSearchBoxProps,
 } from "../search-box-wrapper"
 
 const ControlledSearchBox = ({
   inputRef,
-  isSearchStalled,
   onChange,
   onReset,
   onSubmit,
@@ -52,15 +53,16 @@ const ControlledSearchBox = ({
             type="search"
             value={value}
             onChange={onChange}
-            className="text-base-regular placeholder:transition-colors placeholder:text-gray-500 focus:placeholder:text-gray-900 focus:outline-none flex-1 bg-transparent"
+            className="txt-compact-large h-6 placeholder:text-ui-fg-on-color placeholder:transition-colors focus:outline-none flex-1 bg-transparent "
           />
           {value && (
             <button
               onClick={handleReset}
               type="button"
-              className="h-5 w-5 rounded-full flex items-center justify-center text-gray-900 bg-gray-200"
+              className="items-center justify-center text-ui-fg-on-color focus:outline-none gap-x-2 px-2 txt-compact-large flex"
             >
-              <X size={12} />
+              <XMarkMini />
+              Cancel
             </button>
           )}
         </div>
@@ -70,6 +72,8 @@ const ControlledSearchBox = ({
 }
 
 const SearchBox = () => {
+  const router = useRouter()
+
   return (
     <SearchBoxWrapper>
       {(props) => {

@@ -14,7 +14,7 @@ services:
       POSTGRES_URL: postgres://postgres:postgres@postgres:5432/medusa-docker
       POSTGRES_DRIVER_OPTIONS: '{"connection":{"ssl":false}}'
       NODE_ENV: development
-      REDIS_URL: redis://cache
+      REDIS_URL: redis://redis
       JWT_SECRET: some_jwt_secret
       COOKIE_SECRET: some_cookie_secret
       PORT: 9000
@@ -32,7 +32,7 @@ services:
 
   redis:
     image: redis
-    container_name: cache
+    container_name: redis
     expose:
       - 6379
 
