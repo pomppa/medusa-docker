@@ -12,7 +12,7 @@ this repository contains a starter docker template for [medusajs/medusa](https:/
 clone this repository
 
 ```
-$ git clone git@github.com:pomppa/medusa.git
+$ git clone git@github.com:pomppa/medusa-docker.git
 ```
 
 add env variables
