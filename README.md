@@ -15,6 +15,19 @@ clone this repository
 $ git clone git@github.com:pomppa/medusa.git
 ```
 
+add env variables
+
+```
+$ cd storefront
+$ cp .env.template .env
+```
+
+add backend url
+
+```
+NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://medusa-server:9000
+```
+
 if you run it for the first time, you need to build the images
 
 ```
@@ -24,7 +37,7 @@ $ docker-compose up --build
 after building the images you can run with
 
 ```
-$ docker-compose up
+$ docker-compose up [-d]
 ```
 
 ### development mode
@@ -35,7 +48,7 @@ following ports are assigned (locahost):
 - backend: 9000
 - admin: 7001
 - postgres: 5432
-- redis: 6379 (redis://cache)
+- redis: 6379 (redis://redis)
 
 ### cli commands
 
@@ -50,6 +63,8 @@ database is `medusa-docker`, append to above command for connecting to it.
 ### run migrations
 
 database will be migrated first time you build the images but you can run migrations manually
+postgres is considered remote as connection string does not contain `localhost` - some migrations might not run
+bug in medusa core, running migrations does not always apply custom driver options. use `?sslmode=false` or similar
 
 ```
 $ docker exec medusa-server npx medusa migrations run
@@ -122,4 +137,4 @@ following ports are assigned (localhost)
 - backend: 9000
 - admin panel: 9000 (in path `/app`)
 - postgres: 5432
-- redis: 6379 (redis://cache)
+- redis: 6379 (redis://redis)
