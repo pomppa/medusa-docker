@@ -1,5 +1,6 @@
+*
 !backend
+!backend/.env.template
 !storefront
 !docker*.yml
 !README.md
-*
