@@ -60,11 +60,13 @@ $ docker exec -it medusa-postgres-1  psql -h postgres -U postgres
 
 database is `medusa-docker`, append to above command for connecting to it.
 
-### run migrations
+### about migrations
 
-database will be migrated first time you build the images but you can run migrations manually
-postgres is considered remote as connection string does not contain `localhost` - some migrations might not run
-bug in medusa core, running migrations does not always apply custom driver options. use `?sslmode=false` or similar
+- database will be migrated first time you build the images
+
+- postgres is considered remote as connection string does not contain `localhost`
+- bug in medusa core prevents running some migrations as custom driver options are not applied
+- use `?sslmode=false` or similar in connection string
 
 ```
 $ docker exec medusa-server npx medusa migrations run
@@ -112,9 +114,7 @@ test the product api from backend
 $ curl -X GET localhost:9000/store/products | python -m json.tool
 ```
 
-product module provides an api in storefront `localhost:8000/api/product`
-
-## running in production mode
+## running in production mode (wip / untested)
 
 build production images from both docker-compose files
 
