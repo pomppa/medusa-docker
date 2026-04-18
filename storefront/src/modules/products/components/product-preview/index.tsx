@@ -1,37 +1,51 @@
 import { Text } from "@medusajs/ui"
-import Link from "next/link"
-import { Suspense } from "react"
-
-import { ProductPreviewType } from "types/global"
-
-import PreviewPrice from "./price"
+import { listProducts } from "@lib/data/products"
+import { getProductPrice } from "@lib/util/get-product-price"
+import { HttpTypes } from "@medusajs/types"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Thumbnail from "../thumbnail"
+import PreviewPrice from "./price"
 
 export default async function ProductPreview({
-  id,
-  title,
-  handle,
-  thumbnail,
-  price,
+  product,
   isFeatured,
-}: ProductPreviewType) {
+  region,
+}: {
+  product: HttpTypes.StoreProduct
+  isFeatured?: boolean
+  region: HttpTypes.StoreRegion
+}) {
+  // const pricedProduct = await listProducts({
+  //   regionId: region.id,
+  //   queryParams: { id: [product.id!] },
+  // }).then(({ response }) => response.products[0])
+
+  // if (!pricedProduct) {
+  //   return null
+  // }
+
+  const { cheapestPrice } = getProductPrice({
+    product,
+  })
+
   return (
-    <Link href={`/products/${handle}`} className="group">
-      <div>
-        <Thumbnail thumbnail={thumbnail} size="full" isFeatured={isFeatured} />
+    <LocalizedClientLink href={`/products/${product.handle}`} className="group">
+      <div data-testid="product-wrapper">
+        <Thumbnail
+          thumbnail={product.thumbnail}
+          images={product.images}
+          size="full"
+          isFeatured={isFeatured}
+        />
         <div className="flex txt-compact-medium mt-4 justify-between">
-          <Text className="text-ui-fg-subtle">{title}</Text>
+          <Text className="text-ui-fg-subtle" data-testid="product-title">
+            {product.title}
+          </Text>
           <div className="flex items-center gap-x-2">
-            <Suspense
-              fallback={
-                <div className="w-20 h-6 animate-pulse bg-gray-100"></div>
-              }
-            >
-              <PreviewPrice id={id} price={price} />
-            </Suspense>
+            {cheapestPrice && <PreviewPrice price={cheapestPrice} />}
           </div>
         </div>
       </div>
-    </Link>
+    </LocalizedClientLink>
   )
 }

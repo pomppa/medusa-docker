@@ -1,49 +1,84 @@
-version: "3.8"
 services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: medusa-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: medusa-docker
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - medusa
+
+  redis:
+    image: redis:7-alpine
+    container_name: medusa-redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - medusa
+
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    image: backend:test
-    container_name: medusa-server
+    image: medusa-backend:dev
+    container_name: medusa-backend
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - ./backend/.env
     environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/medusa-docker
-      POSTGRES_URL: postgres://postgres:postgres@postgres:5432/medusa-docker
-      POSTGRES_DRIVER_OPTIONS: '{"connection":{"ssl":false}}'
       NODE_ENV: development
-      REDIS_URL: redis://redis
-      JWT_SECRET: some_jwt_secret
-      COOKIE_SECRET: some_cookie_secret
-      PORT: 9000
-
-  postgres:
-    image: postgres:10.4
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: medusa-docker
-      PGSSLMODE: disable
-    command: ["postgres", "-c", "ssl=off"] # supply a certificate to enable
-
-  redis:
-    image: redis
-    container_name: redis
-    expose:
-      - 6379
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/medusa-docker
+      REDIS_URL: redis://redis:6379
+      # CORS values live in backend/.env(.prod) so they can differ between
+      # dev and prod without a compose edit. Defaults are in
+      # backend/.env.template.
+      #
+      # SEED_ON_START is read from backend/.env via env_file (default true).
+      # It is deliberately NOT listed here: putting
+      #   SEED_ON_START: ${SEED_ON_START:-true}
+      # here would cause Compose to recreate this container (with the default
+      # "true") on any invocation that doesn't set the variable inline,
+      # silently re-running the seed. See backend/.env.template.
+    networks:
+      - medusa
 
   storefront:
+    profiles:
+      - storefront
     build:
       context: ./storefront
       dockerfile: Dockerfile
-    image: storefront:test
+    image: medusa-storefront:dev
     container_name: medusa-storefront
-    environment:
-      NEXT_PUBLIC_BASE_URL: http://localhost:8000
-      POSTGRES_DRIVER_OPTIONS: '{"connection":{"ssl":false}}'
     depends_on:
       - backend
+    env_file:
+      - ./storefront/.env
+    environment:
+      NODE_ENV: development
+    networks:
+      - medusa
+
+volumes:
+  postgres_data:
+
+networks:
+  medusa:
+    driver: bridge

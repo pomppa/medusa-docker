@@ -1,30 +1,34 @@
-FROM node:20.8.0-alpine as deps
-WORKDIR /app/backend
+FROM node:20-alpine AS deps
+WORKDIR /server
+COPY package.json yarn.lock .yarnrc.yml ./
+COPY .yarn/releases .yarn/releases
+RUN yarn install
 
-# copy required files
-COPY package.json .
-COPY yarn.lock .
-
-# install deps 
-RUN yarn install --frozen-lockfile
-
-# build stage
-FROM node:18-alpine3.16 as builder
-WORKDIR /app/backend
-
-# copy node_modules from deps
-COPY --from=deps /app/backend/node_modules /app/backend/node_modules
-
-# install python and medusa-cli
-RUN apk update
-RUN apk add python3
-RUN yarn global add @medusajs/medusa-cli@latest
-
-# copy project files to current workdir
+FROM node:20-alpine AS builder
+WORKDIR /server
+COPY --from=deps /server/node_modules ./node_modules
+COPY --from=deps /server/.yarn ./.yarn
 COPY . .
-
-# run build
+# The starter ships a Yarn Classic v1 yarn.lock; Yarn Berry upgrades it
+# during `yarn install` in the deps stage. The line above would clobber
+# that fresh lockfile with the stale host one, so restore it.
+COPY --from=deps /server/yarn.lock ./yarn.lock
+# `medusa build` produces a standalone app at .medusa/server/ with its
+# own package.json and a Berry-format yarn.lock. The runner stage boots
+# from that directory, NOT from the source root.
 RUN yarn build
 
-# run medusa start
-ENTRYPOINT ["/bin/sh", "./develop.sh", "start"]
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=builder /server/.medusa/server ./
+# The baked yarn.lock is Berry v8; the alpine-bundled yarn is Classic
+# v1 and cannot read it, so ship the Berry release binary + config.
+COPY --from=builder /server/.yarn/releases ./.yarn/releases
+COPY --from=builder /server/.yarnrc.yml ./.yarnrc.yml
+RUN yarn install
+EXPOSE 9000
+# Production containers run migrations only. Seeding is intentionally
+# excluded; run `yarn seed` manually against a running container if you
+# truly need the sample data in a non-dev environment.
+CMD ["sh", "-c", "./node_modules/.bin/medusa db:migrate && yarn start"]

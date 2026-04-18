@@ -1,44 +1,48 @@
-version: "3.8"
 services:
-  backend:
-    build:
-      dockerfile: Dockerfile.prod
-    image: backend:latest
-    container_name: medusa-server
-    restart: always
-    depends_on:
-      - postgres
-      - redis
-    environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/medusa-docker
-      NODE_ENV: production
-      STORE_CORS: http://localhost
-      JWT_SECRET: some_jwt_secret
-      COOKIE_SECRET: some_cookie_secret
-    ports:
-      - "9000:9000"
-
   postgres:
     restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: medusa-docker
 
   redis:
     restart: always
 
-  storefront:
+  backend:
     build:
+      context: ./backend
       dockerfile: Dockerfile.prod
-    image: storefront:latest
-    container_name: medusa-storefront
+    image: medusa-backend:latest
     restart: always
+    env_file:
+      - ./backend/.env.prod
     environment:
       NODE_ENV: production
-      POSTGRES_URL: postgres://postgres:postgres@postgres:5432/medusa-docker
-      POSTGRES_DRIVER_OPTIONS: '{"connection":{"ssl":false}}'
-    depends_on:
-      - backend
     ports:
-      - "80:80"
+      - "9000:9000"
+
+  storefront:
+    build:
+      context: ./storefront
+      dockerfile: Dockerfile.prod
+      # NEXT_PUBLIC_* build args only read from shell env / project-root .env,
+      # NOT from env_file:. See README "Production" for the set -a trick.
+      args:
+        NEXT_PUBLIC_MEDUSA_BACKEND_URL: ${NEXT_PUBLIC_MEDUSA_BACKEND_URL:-}
+        NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY:-}
+        NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-}
+        NEXT_PUBLIC_DEFAULT_REGION: ${NEXT_PUBLIC_DEFAULT_REGION:-us}
+        NEXT_PUBLIC_STRIPE_KEY: ${NEXT_PUBLIC_STRIPE_KEY:-}
+      # nextjs-starter-medusa calls the Medusa API at build time (SSG for
+      # /products, /categories, /collections). For local-parity builds the
+      # backend is published on the host's :9000 and the inlined URL says
+      # `localhost:9000` - without this extra_hosts entry the build container
+      # would resolve `localhost` to itself and get ECONNREFUSED. Harmless
+      # in real prod where NEXT_PUBLIC_MEDUSA_BACKEND_URL is a public URL.
+      extra_hosts:
+        - "localhost:host-gateway"
+    image: medusa-storefront:latest
+    restart: always
+    env_file:
+      - ./storefront/.env.prod
+    environment:
+      NODE_ENV: production
+    ports:
+      - "8000:8000"

@@ -1,6 +1,42 @@
-*
-!backend
-!backend/.env.template
-!storefront
-!docker*.yml
-!README.md
+# deps
+node_modules/
+
+# build output
+.medusa/
+dist/
+build/
+.next/
+out/
+
+# env
+.env
+.env.local
+.env.*.local
+.env.prod
+!.env.template
+!**/.env.template
+!.env.prod.template
+!**/.env.prod.template
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# caches / editor
+.cache/
+.turbo/
+coverage/
+.DS_Store
+.idea/
+.vscode/
+
+# yarn berry pnp artifacts
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

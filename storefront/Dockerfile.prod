@@ -1,25 +1,38 @@
-FROM node:20.8.0-alpine as deps
+FROM node:20-alpine AS deps
 WORKDIR /app/storefront
+COPY package.json yarn.lock .yarnrc.yml ./
+COPY .yarn/releases .yarn/releases
+RUN yarn install
 
-# copy required files
-COPY package.json .
-COPY yarn.lock .
-
-# install deps
-RUN yarn install --frozen-lockfile
-
-# build stage
-FROM node:20.8.0-alpine as builder
+FROM node:20-alpine AS builder
 WORKDIR /app/storefront
+COPY --from=deps /app/storefront/node_modules ./node_modules
+COPY --from=deps /app/storefront/.yarn ./.yarn
+# Copy the lockfile from deps (Berry may have upgraded it from the v1
+# lockfile shipped by the starter); see backend/Dockerfile.prod for
+# the same pattern.
 
-# copy node_modules from deps
-COPY --from=deps /app/storefront/node_modules /app/storefront/node_modules
+# NEXT_PUBLIC_* are inlined into the client bundle at `next build` time.
+# They must be set in the builder stage; a runtime `environment:` in
+# docker-compose does NOT affect already-built client chunks.
+ARG NEXT_PUBLIC_MEDUSA_BACKEND_URL
+ARG NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+ARG NEXT_PUBLIC_BASE_URL
+ARG NEXT_PUBLIC_DEFAULT_REGION=us
+ARG NEXT_PUBLIC_STRIPE_KEY
+ENV NEXT_PUBLIC_MEDUSA_BACKEND_URL=$NEXT_PUBLIC_MEDUSA_BACKEND_URL \
+    NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=$NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY \
+    NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL \
+    NEXT_PUBLIC_DEFAULT_REGION=$NEXT_PUBLIC_DEFAULT_REGION \
+    NEXT_PUBLIC_STRIPE_KEY=$NEXT_PUBLIC_STRIPE_KEY
 
-# copy project files to current workdir
 COPY . .
-
-# run build
+COPY --from=deps /app/storefront/yarn.lock ./yarn.lock
 RUN yarn build
 
-# run storefront in production mode
-ENTRYPOINT [ "yarn", "start" ]
+FROM node:20-alpine AS runner
+WORKDIR /app/storefront
+ENV NODE_ENV=production
+COPY --from=builder /app/storefront ./
+EXPOSE 8000
+CMD ["yarn", "start"]

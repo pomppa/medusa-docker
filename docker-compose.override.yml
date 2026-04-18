@@ -1,22 +1,27 @@
-version: "3.8"
 services:
+  postgres:
+    ports:
+      - "5432:5432"
+
+  redis:
+    ports:
+      - "6379:6379"
+
   backend:
-    environment:
-      NODE_ENV: development
-    volumes:
-      - ./backend:/app/backend
-      - backend_node_modules:/app/backend/node_modules
     ports:
       - "9000:9000"
-      - "7001:7001"
+      - "5173:5173"
+    volumes:
+      - ./backend:/server
+      - backend_node_modules:/server/node_modules
 
   storefront:
+    ports:
+      - "8000:8000"
     volumes:
       - ./storefront:/app/storefront
       - storefront_node_modules:/app/storefront/node_modules
-    ports:
-      - "8000:8000"
 
 volumes:
-  storefront_node_modules:
   backend_node_modules:
+  storefront_node_modules:

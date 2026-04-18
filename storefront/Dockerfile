@@ -1,19 +1,14 @@
-FROM node:20.8.0-alpine as deps
+FROM node:20-alpine
+
 WORKDIR /app/storefront
 
-# copy required files
-COPY package.json .
-COPY yarn.lock .
+COPY package.json yarn.lock .yarnrc.yml ./
+COPY .yarn/releases .yarn/releases
 
-# install deps
-RUN yarn install --frozen-lockfile
+RUN yarn install
 
-# intermediate build stage
-FROM node:20.8.0-alpine as runner
-WORKDIR /app/storefront
+COPY . .
 
-# copy node_modules from deps
-COPY --from=deps /app/storefront/node_modules /app/storefront/node_modules
+EXPOSE 8000
 
-# run storefront in dev mode
-ENTRYPOINT [ "yarn", "dev" ]
+CMD ["yarn", "dev"]

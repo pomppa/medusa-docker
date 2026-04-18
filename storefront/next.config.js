@@ -1,12 +1,29 @@
-const { withStoreConfig } = require("./store-config")
-const store = require("./store.config.json")
+const checkEnvVariables = require("./check-env-variables")
+
+checkEnvVariables()
+
+/**
+ * Medusa Cloud-related environment variables
+ */
+const S3_HOSTNAME = process.env.MEDUSA_CLOUD_S3_HOSTNAME
+const S3_PATHNAME = process.env.MEDUSA_CLOUD_S3_PATHNAME
 
 /**
  * @type {import('next').NextConfig}
  */
-const nextConfig = withStoreConfig({
-  features: store.features,
+const nextConfig = {
   reactStrictMode: true,
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   images: {
     remotePatterns: [
       {
@@ -25,10 +42,17 @@ const nextConfig = withStoreConfig({
         protocol: "https",
         hostname: "medusa-server-testing.s3.us-east-1.amazonaws.com",
       },
+      ...(S3_HOSTNAME && S3_PATHNAME
+        ? [
+            {
+              protocol: "https",
+              hostname: S3_HOSTNAME,
+              pathname: S3_PATHNAME,
+            },
+          ]
+        : []),
     ],
   },
-})
-
-console.log("next.config.js", JSON.stringify(module.exports, null, 2))
+}
 
 module.exports = nextConfig
